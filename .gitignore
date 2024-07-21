@@ -1,0 +1,9 @@
+[bB]in
+[dD]ebug
+[oO]bj
+
+# don't check-in script with local environment parameters.
+params-local.ps1
+
+# test results and coverage.
+TestResults/
