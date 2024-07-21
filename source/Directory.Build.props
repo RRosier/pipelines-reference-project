@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <Product>My Product</Product>
+    <Description>Product description.</Description>
+    <VersionPrefix>0.0.0</VersionPrefix>
+    <VersionSuffix>dev.0</VersionSuffix>
+    <Company>My company</Company>
+    <Copyright>My company 2024</Copyright>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>
