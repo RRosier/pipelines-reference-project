@@ -1,0 +1,37 @@
+parameters:
+  name: ''
+  isReleaseBranch: false
+
+jobs:
+  - job: ${{ parameters.name }}
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      buildConfiguration: 'Release'
+      sourceDirectory: '$(Build.SourcesDirectory)/source'
+    
+    steps:
+
+    # calculate build number
+    - powershell: |
+        Write-Host "Calculate versioning ( $(version) $(isPR)) )"
+        $hasMatches = "$(version)" -match '(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.(?<build>\d+)'
+        if (!$hasMatches) {
+            throw "$(version) not in correct format. Needs to be 'major.minor.patch.build'"
+        }
+
+        $version = "$($matches.major).$($matches.minor).$($matches.patch)-$($matches.build)"
+        if ("$(isPR)" -eq "True") {
+          $version = "$($matches.major).$($matches.minor).$($matches.patch)-pr.$($matches.build)"
+        } elseif ( "${{parameters.isReleaseBranch}}" -ne "True" ) {
+          $version = "$($matches.major).$($matches.minor).$($matches.patch)-dev.$($matches.build)"
+        }
+        Write-Host Version Number: $version
+
+        Write-Host "Updating source version to $version..."
+        $propsFile = "$(sourceDirectory)/Directory.Build.props"
+        & "$(Build.SourcesDirectory)/scripts/update-build-number.ps1" $version $propsFile
+
+        Write-Host "##vso[task.setvariable variable=buildNumber;isOutput=true]$version"
+        # this will show the calcualted version number in the pipeline UI.
+        Write-Host "##vso[build.updatebuildnumber]$version"
