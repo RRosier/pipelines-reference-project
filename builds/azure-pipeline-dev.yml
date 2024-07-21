@@ -1,0 +1,47 @@
+# pipeline CI triggered only on development branches.
+
+variables:
+  - template: templates/azure-pipelines-variables.yml
+
+resources:
+  - repo: self
+
+trigger:
+  branches:
+    # only trigger the build for these defined branches (based on branch naming conventions)
+    include:
+      - features/*
+      - bugs/*
+  paths:
+    # prevent build trigger if only docs have changed
+    exclude:
+      - docs
+      - readme.md
+
+stages:
+  # perform build and unit tests, publish artifacts and test reports
+  - stage: build
+    displayName: build and test
+    jobs:
+      - template: ./templates/azure-pipelines-build-template.yml
+        parameters:
+          name: 'build_soure'
+          isReleaseBranch: false
+
+  # if applicable, deploy on a dev environment, for manual or automated test purposes.
+  # the environment is maintained with policies by the 'environment' configuration in azure devops.
+  - stage: deploydev
+    displayName: deploy development
+    dependsOn: build
+    condition: succeeded()
+    variables: 
+      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+    jobs:
+      - template: ./templates/azure-pipelines-deploy-template.yml
+        parameters:
+          name: 'deploy_dev'
+          displayName: 'deploy development'
+          environment: 'env-development'
+          variablesGroups:
+            - 'app-dev'
+          azureSubscription: 'my-azure-subscription'

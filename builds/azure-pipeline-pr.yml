@@ -1,0 +1,22 @@
+# pipeline triggered for Pull Requests.
+# for Pull Requests, we are only interested in build and unit test executions.
+
+variables:
+  - template: templates/azure-pipelines-variables.yml
+
+resources:
+  - repo: self
+
+trigger: none
+pr:
+  autoCancel: true
+
+stages:
+# perform build and unit tests, and publish test reports
+  - stage: build
+    displayName: build and test
+    jobs:
+      - template: ./templates/azure-pipelines-build-template.yml
+        parameters:
+          name: 'build_soure'
+          isReleaseBranch: true

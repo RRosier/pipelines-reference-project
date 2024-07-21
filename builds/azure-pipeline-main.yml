@@ -1,0 +1,61 @@
+# pipeline triggered for the main/release branch.
+
+variables:
+  - template: templates/azure-pipelines-variables.yml
+
+resources:
+  - repo: self
+
+trigger: none # no CI, manual triggering
+  # branches:
+  #   # else for CI/CD, configure trigger only for main
+  #   include:
+  #     - main
+pr: none
+
+stages:
+# perform build and unit tests, publish artifacts and test reports
+  - stage: build
+    displayName: build and test
+    jobs:
+      - template: ./templates/azure-pipelines-build-template.yml
+        parameters:
+          name: 'build_soure'
+          isReleaseBranch: true
+
+# deploy on a test environment, for manual or automated test purposes. 
+# after deployment, another step for automated integration tests can be added.
+# the environment is maintained with policies by the 'environment' configuration in azure devops.
+  - stage: deploytest
+    displayName: deploy test
+    dependsOn: build
+    condition: succeeded()
+    variables: 
+      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+    jobs:
+      - template: ./templates/azure-pipelines-deploy-template.yml
+        parameters:
+          name: 'deploy_test'
+          displayName: 'deploy test'
+          environment: 'env-test'
+          variablesGroups:
+            - 'app-test'
+          azureSubscription: 'my-azure-subscription'
+
+# deploy production environment.
+# the environment is maintained with policies by the 'environment' configuration in azure devops.
+  - stage: deployprod
+    displayName: deploy production
+    dependsOn: build
+    condition: succeeded()
+    variables: 
+      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+    jobs:
+      - template: ./templates/azure-pipelines-deploy-template.yml
+        parameters:
+          name: 'deploy_prod'
+          displayName: 'deploy production'
+          environment: 'env-production'
+          variablesGroups:
+            - 'app-prod'
+          azureSubscription: 'my-azure-subscription'
