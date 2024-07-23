@@ -35,3 +35,68 @@ jobs:
         Write-Host "##vso[task.setvariable variable=buildNumber;isOutput=true]$version"
         # this will show the calcualted version number in the pipeline UI.
         Write-Host "##vso[build.updatebuildnumber]$version"
+      name: CalculateBuildNumber
+      displayName: 'calculate build number'
+    
+    - task: UseDotNet@2
+      displayName: 'use .NET 8.0'
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: restore
+        projects: '**/*.csproj'
+        feedsToUse: config
+        nugetConfigPath: $(sourceDirectory)/NuGet.config
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build'
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '-c $(buildConfiguration) --no-restore'
+        workingDirectory: $(sourceDirectory)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        command: test
+        projects: '**/*.Tests.csproj'
+        nobuild: true
+        arguments: '-c $(buildConfiguration) --no-restore --collect:"XPlat Code Coverage" /p:Exclude="[*Tests]*"'
+        workingDirectory: $(sourceDirectory)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet publish'
+      condition: "and(succeeded(), ne(variables['isPR'], 'True'))"
+      inputs:
+        command: publish
+        nobuild: true
+        arguments: '-c $(buildConfiguration) --no-restore -o $(Build.SourcesDirectory)/published'
+        modifyOutputPath: false
+        zipAfterPublish: true
+        workingDirectory: $(sourceDirectory)
+
+    - powershell: |
+        Write-Host 'rename package to include version $(CalculateBuildNumber.buildNumber)'
+        Get-ChildItem -Filter "*.zip" -Recurse | Rename-Item -NewName {$_.name -replace '.zip','-$(CalculateBuildNumber.buildNumber).zip'}
+      displayName: 'rename zip package'
+      condition: "and(succeeded(), ne(variables['isPR'],'True'))"
+      workingDirectory: $(Build.SourcesDirectory)/published
+
+    - task: CopyFiles@2
+      displayName: 'copy .zip file to ArtifactStagingDirectory'
+      condition: "and(succeeded(), ne(variables['isPR'], 'True'))"
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/published/**/*.zip
+        targetFolder: '$(Build.ArtifactStagingDirectory)/application'
+        flattenFolders: true
+      
+    - publish: $(Build.ArtifactStagingDirectory)/application
+      displayName: 'publish artifact: application'
+      condition: "and(succeeded(), ne(variables['isPR'],'True'))"
+      artifact: 'application'
