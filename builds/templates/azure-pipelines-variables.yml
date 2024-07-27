@@ -9,5 +9,5 @@ variables:
   version: $(versionPrefix).$(build)
   # identify a pull request build
   isPR: $[eq(variables['Build.Reason'], 'PullRequest')]
-  # don't interfere with code coverage publishing.
+  # don't interfere with code coverage report generator. https://github.com/danielpalme/ReportGenerator/wiki/Integration#attention
   disable.coverage.autogenerate: 'true'

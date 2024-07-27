@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApiProject\ApiProject.csproj" />
+    <ProjectReference Include="..\..\ApiProject\ApiProject.csproj" />
   </ItemGroup>
 
 </Project>
