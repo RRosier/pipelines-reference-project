@@ -30,18 +30,18 @@ stages:
 
   # if applicable, deploy on a dev environment, for manual or automated test purposes.
   # the environment is maintained with policies by the 'environment' configuration in azure devops.
-  - stage: deploydev
-    displayName: deploy development
-    dependsOn: build
-    condition: succeeded()
-    variables: 
-      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
-    jobs:
-      - template: ./templates/azure-pipelines-deploy-template.yml
-        parameters:
-          name: 'deploy_dev'
-          displayName: 'deploy development'
-          environment: 'env-development'
-          variablesGroups:
-            - 'app-dev'
-          azureSubscription: 'my-azure-subscription'
+  # - stage: deploydev
+  #   displayName: deploy development
+  #   dependsOn: build
+  #   condition: succeeded()
+  #   variables: 
+  #     buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+  #   jobs:
+  #     - template: ./templates/azure-pipelines-deploy-template.yml
+  #       parameters:
+  #         name: 'deploy_dev'
+  #         displayName: 'deploy development'
+  #         environment: 'env-development'
+  #         variablesGroups:
+  #           - 'app-dev'
+  #         azureSubscription: 'my-azure-subscription'
