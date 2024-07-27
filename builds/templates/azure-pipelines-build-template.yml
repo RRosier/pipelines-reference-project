@@ -9,6 +9,7 @@ jobs:
     variables:
       buildConfiguration: 'Release'
       sourceDirectory: '$(Build.SourcesDirectory)/source'
+      testResultsDirectory: '$(Build.SourcesDirectory)/test-results'
     
     steps:
 
@@ -66,6 +67,8 @@ jobs:
         command: test
         projects: '**/*.Tests.csproj'
         nobuild: true
+        # publishTestResults: false -- when true, test and coverage files are stored in Agent.TempDirectory.
+        #                              alternative, put this to false and set the results file in arguments, but you need to publish the test results manually. 
         arguments: '-c $(buildConfiguration) --no-restore --collect:"XPlat Code Coverage" /p:Exclude="[*Tests]*"'
         workingDirectory: $(sourceDirectory)
 
@@ -74,6 +77,7 @@ jobs:
       condition: "and(succeeded(), ne(variables['isPR'], 'True'))"
       inputs:
         command: publish
+        projects: '**/ApiProject.csproj'
         nobuild: true
         arguments: '-c $(buildConfiguration) --no-restore -o $(Build.SourcesDirectory)/published'
         modifyOutputPath: false
@@ -87,6 +91,8 @@ jobs:
       condition: "and(succeeded(), ne(variables['isPR'],'True'))"
       workingDirectory: $(Build.SourcesDirectory)/published
 
+    # these can be removed if we publishing directly in the Build.ArtifactsStagingDirectory
+    # I would keep it if you publish multiple projects (e.g. back- and front-end)
     - task: CopyFiles@2
       displayName: 'copy .zip file to ArtifactStagingDirectory'
       condition: "and(succeeded(), ne(variables['isPR'], 'True'))"
@@ -100,3 +106,19 @@ jobs:
       displayName: 'publish artifact: application'
       condition: "and(succeeded(), ne(variables['isPR'],'True'))"
       artifact: 'application'
+
+# Generate and publish all code coverages
+    - task: reportgenerator@5
+      displayName: 'Generate Code Coverage Report'
+      inputs:
+        reports: $(Agent.TempDirectory)/**/*cobertura*.xml
+        targetdir: $(Build.ArtifactStagingDirectory)/test-results/
+        reporttypes: "HtmlInline_AzurePipelines;Cobertura;Badges"
+
+    - task: PublishCodeCoverageResults@2
+      displayName: "Publish Code Coverage Results"
+      inputs:
+        codeCoverageTool: cobertura
+        summaryFileLocation: $(Build.ArtifactStagingDirectory)/test-results/Cobertura.xml
+        # To make the task not regenerate the report an environment variable was added to the pipeline in Azure DevOps; "disable.coverage.autogenerate: 'true'"
+        # see: https://github.com/danielpalme/ReportGenerator/wiki/Integration#attention
