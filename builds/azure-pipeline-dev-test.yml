@@ -8,10 +8,9 @@ resources:
 
 trigger:
   branches:
-    # only trigger the build for these defined branches (based on branch naming conventions)
+    # modify pipeline builds on separate branch so it does not triggered the dev builds
     include:
-      - features/*
-      - bugs/*
+      - pipeline/*
   paths:
     # prevent build trigger if only docs have changed
     exclude:

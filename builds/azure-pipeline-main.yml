@@ -26,36 +26,36 @@ stages:
 # deploy on a test environment, for manual or automated test purposes. 
 # after deployment, another step for automated integration tests can be added.
 # the environment is maintained with policies by the 'environment' configuration in azure devops.
-  - stage: deploytest
-    displayName: deploy test
-    dependsOn: build
-    condition: succeeded()
-    variables: 
-      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
-    jobs:
-      - template: ./templates/azure-pipelines-deploy-template.yml
-        parameters:
-          name: 'deploy_test'
-          displayName: 'deploy test'
-          environment: 'env-test'
-          variablesGroups:
-            - 'app-test'
-          azureSubscription: 'my-azure-subscription'
+#   - stage: deploytest
+#     displayName: deploy test
+#     dependsOn: build
+#     condition: succeeded()
+#     variables: 
+#       buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+#     jobs:
+#       - template: ./templates/azure-pipelines-deploy-template.yml
+#         parameters:
+#           name: 'deploy_test'
+#           displayName: 'deploy test'
+#           environment: 'env-test'
+#           variablesGroups:
+#             - 'app-test'
+#           azureSubscription: 'my-azure-subscription'
 
-# deploy production environment.
-# the environment is maintained with policies by the 'environment' configuration in azure devops.
-  - stage: deployprod
-    displayName: deploy production
-    dependsOn: build
-    condition: succeeded()
-    variables: 
-      buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
-    jobs:
-      - template: ./templates/azure-pipelines-deploy-template.yml
-        parameters:
-          name: 'deploy_prod'
-          displayName: 'deploy production'
-          environment: 'env-production'
-          variablesGroups:
-            - 'app-prod'
-          azureSubscription: 'my-azure-subscription'
+# # deploy production environment.
+# # the environment is maintained with policies by the 'environment' configuration in azure devops.
+#   - stage: deployprod
+#     displayName: deploy production
+#     dependsOn: build
+#     condition: succeeded()
+#     variables: 
+#       buildNumber: $[stageDependencies.build.build_source.outputs['CalculateBuildNumber.buildNumber']]
+#     jobs:
+#       - template: ./templates/azure-pipelines-deploy-template.yml
+#         parameters:
+#           name: 'deploy_prod'
+#           displayName: 'deploy production'
+#           environment: 'env-production'
+#           variablesGroups:
+#             - 'app-prod'
+#           azureSubscription: 'my-azure-subscription'
