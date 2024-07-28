@@ -11,7 +11,7 @@ trigger: none # no CI, manual triggering
   #   # else for CI/CD, configure trigger only for main
   #   include:
   #     - main
-pr: none
+pr: none # disable pull request triggers.
 
 stages:
 # perform build and unit tests, publish artifacts and test reports

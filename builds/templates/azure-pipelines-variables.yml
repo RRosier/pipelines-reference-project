@@ -2,7 +2,7 @@
 # modify only for version upgrades
 variables:
   # set semantic version prefix for the current build
-  versionPrefix: '1.0.0'
+  versionPrefix: '1.1.0'
   # variable to create a unique build number (https://learn.microsoft.com/en-us/azure/devops/pipelines/process/expressions?view=azure-devops#counter)
   build: $[counter(variables['versionPrefix'], 1)]
   # create a 4-digit version with prefix and calculated build.

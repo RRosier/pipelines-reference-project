@@ -7,9 +7,9 @@ variables:
 resources:
   - repo: self
 
-trigger: none
+trigger: none # disable CI triggers.
 pr:
-  autoCancel: true
+  - main # trigger on any push into main
 
 stages:
 # perform build and unit tests, and publish test reports

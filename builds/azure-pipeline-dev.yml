@@ -17,6 +17,7 @@ trigger:
     exclude:
       - docs
       - readme.md
+pr: none # disable pull request triggers.
 
 stages:
   # perform build and unit tests, publish artifacts and test reports
