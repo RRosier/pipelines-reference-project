@@ -109,14 +109,14 @@ jobs:
 
 # Generate and publish all code coverages
     - task: reportgenerator@5
-      displayName: 'Generate Code Coverage Report'
+      displayName: 'generate code coverage report'
       inputs:
         reports: $(Agent.TempDirectory)/**/*cobertura*.xml
         targetdir: $(Build.ArtifactStagingDirectory)/test-results/
         reporttypes: "HtmlInline_AzurePipelines;Cobertura;Badges"
 
     - task: PublishCodeCoverageResults@2
-      displayName: "Publish Code Coverage Results"
+      displayName: "publish code coverage results"
       inputs:
         codeCoverageTool: cobertura
         summaryFileLocation: $(Build.ArtifactStagingDirectory)/test-results/Cobertura.xml
