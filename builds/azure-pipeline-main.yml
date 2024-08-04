@@ -20,7 +20,6 @@ stages:
     jobs:
       - template: ./templates/azure-pipelines-build-template.yml
         parameters:
-          name: 'build_soure'
           isReleaseBranch: true
 
 # deploy on a test environment, for manual or automated test purposes. 

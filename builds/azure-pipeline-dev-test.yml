@@ -25,5 +25,4 @@ stages:
     jobs:
       - template: ./templates/azure-pipelines-build-template.yml
         parameters:
-          name: 'build_soure'
           isReleaseBranch: false

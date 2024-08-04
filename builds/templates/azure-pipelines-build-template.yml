@@ -1,9 +1,9 @@
 parameters:
-  name: ''
-  isReleaseBranch: false
+  jobName: 'build_source'
+  isReleaseBranch: false # can also be calculated from branch name (Main)
 
 jobs:
-  - job: ${{ parameters.name }}
+  - job: ${{ parameters.jobName }}
     pool:
       vmImage: 'ubuntu-latest'
     variables:
